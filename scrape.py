@@ -1,7 +1,7 @@
 from scraper import scrape
 
 # Starting URL
-start_url = "https://www.tagesschau.de"
+start_url = "https://docs.solace.com/Cloud/Event-Portal/event-portal-lp.htm"
 # Starting depth
 start_depth = 3
 

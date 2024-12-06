@@ -2,11 +2,13 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+from url_normalize import url_normalize
 
 # Set for storing already visited urls
 visited_urls = set()
 
 data_directory = "./content"
+
 
 def get_page_content(url):
     """
@@ -14,6 +16,7 @@ def get_page_content(url):
     """
     response = requests.get(url)
     return response.text
+
 
 def get_all_links(content, domain):
     """
@@ -31,10 +34,10 @@ def get_all_links(content, domain):
                     print("Following", href)
                     valid_links.append(href)
             else:
-
                 print("Following", strip_after_last_hash(href))
                 valid_links.append(domain + '/' + strip_after_last_hash(href))
     return valid_links
+
 
 def strip_after_last_hash(url):
     """
@@ -47,25 +50,31 @@ def strip_after_last_hash(url):
     else:
         return url
 
+
 def write_to_file(url, content):
     """
     Write the content to a text file with the name as the URL
     """
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
-    filename = data_directory + '/' + url.replace('/', '_').replace(':', '_') + '.txt'
+    filename = data_directory + '/' + \
+        url.replace('/', '_').replace(':', '_') + '.txt'
     with open(filename, 'w', encoding='utf-8') as f:
         lines = content.split('\n')
         non_blank_lines = [line for line in lines if line.strip() != '']
         f.write('\n'.join(non_blank_lines))
 
+
 def scrape(url, depth):
     """
     Scrapes the webpage at `url` up to a certain `depth`
     """
-    scheme = urlparse(url).scheme # Get the scheme
-    domain = urlparse(url).netloc # Get base domain
-    path = os.path.dirname(urlparse(url).path) # Get base path excluding the last part
+    url = url_normalize(url)
+
+    scheme = urlparse(url).scheme  # Get the scheme
+    domain = urlparse(url).netloc  # Get base domain
+    # Get base path excluding the last part
+    path = os.path.dirname(urlparse(url).path)
 
     print("URL", url)
     if depth == 0 or url in visited_urls:
